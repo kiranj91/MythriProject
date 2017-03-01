@@ -1,13 +1,29 @@
 package mythri.example.com.mythriapplication;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
+import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.ImageReader;
+import android.renderscript.Allocation;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.app.LoaderManager.LoaderCallbacks;
+
+import android.support.v8.renderscript.*;
 
 import android.content.CursorLoader;
 import android.content.Loader;
@@ -19,6 +35,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Log;
+import android.util.Size;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,10 +45,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -43,6 +63,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * Id to identity READ_CONTACTS permission request.
      */
     private static final int REQUEST_READ_CONTACTS = 0;
+    public static  final int MY_PERMISSIONS_REQUEST_LOCATION = 0;
 
     /**
      * A dummy authentication store containing known user names and passwords.
@@ -69,6 +90,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
+        locationpermission();
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -86,13 +108,82 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+                startActivity(cameraIntent);
+//                startActivity(intent);
+//                attemptLogin();
             }
         });
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+
+    private void locationpermission() {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this
+                ,
+                Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+    }
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults)     {
+//        switch (requestCode) {
+//            case MY_PERMISSIONS_REQUEST_LOCATION: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                    // permission was granted, yay! Do the
+//                    // contacts-related task you need to do.
+//
+//                } else {
+//
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+//                }
+//                return;
+//            }
+//
+//            // other 'case' lines to check for other
+//            // permissions this app might request
+//        }
+//    }
+
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if (requestCode == CAMERA_PIC_REQUEST) {
+            Bitmap image = (Bitmap) data.getExtras().get("data");
+//            ImageView imageview = (ImageView) findViewById(R.id.ImageView01);
+//            imageview.setImageBitmap(image);
+//        }
+    }
+
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
@@ -135,6 +226,21 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 populateAutoComplete();
             }
         }
+        else if ( requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
+
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                // permission was granted, yay! Do the
+                // contacts-related task you need to do.
+
+            } else {
+
+                // permission denied, boo! Disable the
+                // functionality that depends on this permission.
+            }
+            return;
+        }
     }
 
 
@@ -144,6 +250,65 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
+
+
+
+//        private boolean openCamera(int width, int height) {
+//            CameraManager manager =
+//                    (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+//            try {
+//                if (!mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS)) {
+//                    Log.e(TAG, "Time out waiting to lock camera opening.");
+//                    return false;
+//                }
+//                String cameraId = mUseFrontCamera ? mFrontCameraId : mBackCameraId;
+//
+//                CameraCharacteristics characteristics =
+//                        manager.getCameraCharacteristics(cameraId);
+//
+//                StreamConfigurationMap map =
+//                        characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+//                if (map == null) {
+//                    Log.e(TAG, "No StreamConfigurationMap available");
+//                    return false;
+//                }
+//
+//                Size[] sizes = map.getOutputSizes(Allocation.class);
+//                if (sizes.length == 0)
+//                    return false;
+//                Size videoSize = chooseOptimalSize(sizes, WIDTH, HEIGHT);
+//
+//                // We need an ImageReader only to get the required surface for the
+//                // RenderScript output allocation.
+//                mImageReader = ImageReader.newInstance(videoSize.getWidth(),
+//                        videoSize.getHeight(),
+//                        PixelFormat.RGBA_8888, 1);
+//
+//                mConversionScript = new RgbConversion(mRenderScript, videoSize,
+//                        this, mFrameEveryMs);
+//
+//                // Get all available size available for TextureSurface
+//                sizes = map.getOutputSizes(SurfaceTexture.class);
+//
+//                // Get the optimal size for the preview window
+//                mPreviewSize = chooseOptimalSize(sizes, width, height);
+//                configureTransform(width, height);
+//
+//                manager.openCamera(cameraId, mStateCallback, null);
+//
+//            } catch (CameraAccessException e) {
+//                Log.e(TAG, "Cannot access the camera.", e);
+//                return false;
+//            } catch (InterruptedException e) {
+//                Log.e(TAG, "Interrupted while trying to lock camera opening.");
+//                return false;
+//            } catch (SecurityException e) {
+//                Log.e(TAG, "No access to camera device", e);
+//                return false;
+//            }
+//            return true;
+//        }
+
         if (mAuthTask != null) {
             return;
         }

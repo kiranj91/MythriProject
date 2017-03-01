@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">MythriApplication</string>
+    <string name="app_name">Studi€rent</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Login</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>
     <string name="error_invalid_password">This password is too short</string>
@@ -13,4 +13,63 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+    <!-- Strings related to Register -->
+    <string name="firstName">First Name</string>
+    <string name="lastName">Last Name</string>
+    <string name="address">Address</string>
+    <string name="emailId">Email ID</string>
+    <string name="mobileNo">Mobile No</string>
+    <string name="password">Password</string>
+    <string name="confirmpassword">Confirm Password</string>
+    <string name="Male">male</string>
+    <string name="Female">female</string>
+    <string name="action_register">Sign Up</string>
+
+    <!-- Strings related to Search -->
+    <string name="streetOrzipcode">Street/Zipcode</string>streetOrzipcode
+    <string name="flatshare">Flatshare</string>
+    <string name="flat">Flat</string>
+    <string name="house">House</string>
+    <string name="minwalk2km">0-2 km/5-10 min walking</string>
+    <string name="minwalk5km">2-5 km/1-30 min walking</string>
+    <string name="minwalkmorethan5km">5+ km/30+ min walking</string>
+    <string name="directbus">Direct Bus</string>
+    <string name="studentresidence">Student Residence</string>
+    <string name="action_search">Search</string>
+    <string name="minrent">Minimum Rent</string>
+    <string name="maxrent">Maximum Rent</string>
+    <string name="dateformat">yyyymmdd</string>
+    <string name="score">Studierent score</string>
+    <string name="landordratings">Landord Ratings</string>
+    <!-- Strings related to Studierent score dropdown list spinner -->
+    <string-array name="score_arrays">
+        <item>90+</item>
+        <item>80+</item>
+        <item>70+</item>
+        <item>60+</item>
+        <item>50+</item>
+        <item>0+</item>
+    </string-array>
+
+    <!-- Strings related to Studierent score dropdown list spinner -->
+    <string-array name="landlordratings_arrays">
+        <item>5</item>
+        <item>4</item>
+        <item>3</item>
+        <item>2</item>
+        <item>1</item>
+    </string-array>
+
+    <!-- Strings related to Studierent score dropdown list spinner -->
+    <string-array name="sortby_arrays">
+        <item>Rent (High-Low)</item>
+        <item>Rent (Low-High)</item>
+        <item>Zipcode/Street</item>
+        <item>Available From Date</item>
+        <item>Available to Date</item>
+    </string-array>
+
+    <!-- Strings related to search results property page -->
+    <string name="searchresults">Properties Found</string>
 </resources>
